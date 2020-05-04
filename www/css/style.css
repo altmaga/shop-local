@@ -1,3 +1,172 @@
+/*
+* Generals
+*/
+body {
+  color: #000;
+}
+
+header, footer {
+  padding: 8rem;
+}
+
+p {
+  margin: 0;
+}
+
 .hidden {
   display: none;
+}
+
+.button, button, input[type='button'], input[type='reset'], input[type='submit'] {
+  padding: 0 1.0rem;
+  margin-bottom: 0rem;
+  transition: all .3s ease;
+}
+
+/*
+* Header
+*/
+
+header #shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header #shop-item > div {
+  flex: 1;
+}
+
+header #shop-item #shop-logo img,
+footer #shop-contact #shop-logo-footer img {
+  max-width: 100px;
+}
+
+header #shop-item #shop-title {
+  text-align: center;
+}
+
+header #shop-item #shop-nav #main-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/*
+* Footer
+*/
+
+footer #shop-contact {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+footer #shop-contact #shop-info .rs{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/*
+* Hero
+*/
+
+section#wrapper-hero #wrapper-items #shop-items ul{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2.5rem 0;
+}
+
+section#wrapper-hero #wrapper-items #shop-items ul li{
+  flex: 1;
+  margin-right: 3rem;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: lightblue;
+}
+
+section#wrapper-hero #wrapper-items #shop-items ul li:last-child{
+  margin-right: 0rem;
+}
+
+/*
+* Espace co
+*/
+
+section#espace-co {
+  max-width: 500px;
+  margin: auto;
+}
+
+section#espace-co h2 {
+  text-align: center;
+}
+/*
+* Product
+*/
+section#shop {
+  padding-top: 5rem;
+  padding-bottom: 8rem;
+}
+
+section#shop .title {
+  text-align: center;
+}
+
+section#shop #product-list {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+section#shop #product-list article#product {
+  flex: 33.3%;
+  margin-bottom: 3rem;
+}
+
+section#shop #product-list article#product #preview-product{
+  max-width: 250px;
+  margin: auto;
+}
+
+section#shop #product-list article#product figure {
+  margin: 0 !important;
+}
+
+section#shop #product-list article#product figure img {
+  width: 250px;
+  height: 250px;
+	object-fit: cover;
+}
+
+/*
+* Product detail
+*/
+
+section#shop #product-detail {
+  position: fixed;
+  right: -36rem;
+  top: 0;
+  width: 35rem;
+  height: 100vh;
+  background: beige;
+  padding: 4rem;
+  z-index: 10;
+}
+
+section#shop #product-detail.open{
+  right: 0;
+}
+
+section#shop #product-detail.open + #product-list{
+  -webkit-filter: blur(.5rem);
+  -moz-filter: blur(.5rem);
+  -o-filter: blur(.5rem);
+  filter: blur(.5rem);
+
+  opacity: .7;
 }

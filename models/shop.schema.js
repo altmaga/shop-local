@@ -11,12 +11,26 @@ Definition
 */
     const ShopSchema = new Schema({
         name: String,
-        description: String,
-        address: String,
-        tel: String,
-        hours: String,
-        site: String,
-        img: String
+        baseline: String,
+        logo: String,
+        items: [{
+            item: String
+        }],
+        img: String,
+        informations: {
+            address: String,
+            cp: String,
+            tel: String,
+            instagram: String,
+            facebook: String,
+            site: String
+        },
+        hours: [
+            {
+                day: String,
+                hour: String
+            }
+        ]
     });
 //
 

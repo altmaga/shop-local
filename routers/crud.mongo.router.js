@@ -58,12 +58,12 @@ Routes definition
                         // Define post data
                         data = {
                             name: req.body.name,
-                            description: req.body.description,
-                            address: req.body.address,
-                            tel: req.body.tel,
-                            hours: req.body.hours,
-                            site: req.body.site,
-                            img: req.body.img
+                            baseline: req.body.baseline,
+                            logo: req.body.logo,
+                            items: req.body.items,
+                            img: req.body.img,
+                            informations: req.body.informations,
+                            hours: req.body.hours
                         }
 
                         // MONGODB Create new document in 'shops' collection
@@ -273,13 +273,13 @@ Routes definition
                             }
                             else{
                                 // Update documeent data
-                                document.name = req.body.name;
-                                document.description = req.body.description;
-                                document.address = req.body.address;
-                                document.tel = req.body.tel;
-                                document.hours = req.body.hours;
-                                document.img = req.body.img;
-                                document.site = req.body.site;
+                                document.name = req.body.name,
+                                document.baseline = req.body.baseline,
+                                document.logo = req.body.logo,
+                                document.items = req.body.items,
+                                document.img = req.body.img,
+                                document.informations = req.body.informations,
+                                document.hours = req.body.hours
 
                                 // Save document
                                 document.save()

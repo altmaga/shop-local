@@ -3,7 +3,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Shop Local</title>
+        <title></title>
+        <link rel="icon" type="image/png" href="./assets/img/shop-1/logo.jpg" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
         <link href="https://fonts.googleapis.com/css?family=Grand+Hotel&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.css">
@@ -12,31 +13,66 @@
     </head>
     <body>
         <header>
-            <h1 id="shop-name"></h1>
-            <nav id="main-nav" class="hidden"></nav>
+            <div id="shop-item">
+                <div id="shop-logo">
+
+                </div>
+                <div id="shop-title">
+
+                </div>
+                <div id="shop-nav">
+                    <nav id="main-nav" class="hidden"></nav>
+                </div>
+            </div>
         </header>
-        <!-- Espace de co -->
-        <section id="espace-co">
-            <form action="#" id="register-form">
-                <h2>Créer un compte</h2>
-                <input type="text"  name="user-name" required minlength="2" placeholder="Nom">
-                <input type="text" name="user-email" required minlength="5" placeholder="Email">
-                <input type="text" name="user-password" required minlength="5" placeholder="Mot de passe">
-                <button type="submit">Register</button>
-            </form>
 
-            <form action="#" id="login-form">
-                <h3>Connectez-vous</h3>
-                <input type="text" name="login-email" required minlength="5" placeholder="Email">
-                <input type="text" name="login-password" required minlength="5" placeholder="Mot de passe">
-                <button type="submit">Login</button>
-            </form>
-        </section>
+        <main>
+            <!-- Espace de co -->
+            <section id="espace-co">
+                <form action="#" id="register-form">
+                    <h2>Créer un compte</h2>
+                    <input type="text"  name="user-name" required minlength="2" placeholder="Nom">
+                    <input type="text" name="user-email" required minlength="5" placeholder="Email">
+                    <input type="text" name="user-password" required minlength="5" placeholder="Mot de passe">
+                    <button type="submit">Register</button>
+                </form>
 
-        <!-- Shop -->
-        <section id="product-list"></section>
+                <form action="#" id="login-form">
+                    <h2>Connectez-vous</h2>
+                    <input type="text" name="login-email" required minlength="5" placeholder="Email">
+                    <input type="text" name="login-password" required minlength="5" placeholder="Mot de passe">
+                    <button type="submit">Login</button>
+                </form>
+            </section>
 
-        <footer>© Alice Mouchard</footer>
+            <!-- Pres -->
+            <section id="wrapper-hero" class="hidden">
+                <div id="hero">
+                </div>
+                <div id="wrapper-items">
+                </div>
+            </section>
+            <!-- Shop -->
+            <section id="shop" class="shop-all hidden container">
+                <div class="title">
+                    <h2>Tous les produits</h2>
+                    <h3>Frais, local et de saison !</h3>
+                </div>
+                <section id="product-list"></section>
+
+                <section id="product-detail">
+                    <article></article>
+                </section>
+            </section>
+        </main>
+
+        <footer>
+            <hr>
+            <div id="shop-contact">
+
+            </div>
+            <span>© Alice Mouchard</span>
+        </footer>
         <script src="./js/fetch.class.js"></script>
         <script src="./js/app.js"></script>
     </body>
