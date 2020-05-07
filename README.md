@@ -10,3 +10,11 @@ Etapes à suivre :
 - Installer les dépendances avec la commande `npm i`
 - Innstaller - si ce n'est déjà fait - __NodeMon__ avec la commande `sudo npm i -g nodemon`
 - Lancer le serveur avec la commande `npm start`
+
+## MongoDB
+
+# si la base de données n'est pas dans /data/db on doit spécifier le chemin avec --dbpath
+mongod --dbpath db/
+
+# si la base doit écouter sur un port spécifique
+mongod --port 42

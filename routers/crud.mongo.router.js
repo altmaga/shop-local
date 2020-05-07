@@ -4,11 +4,20 @@ Imports
     // Node
     const express = require('express');
     const router = express.Router();
+    const passport = require('passport');
 
     // Inner
     const ProductModel = require('../models/product.schema');
     const ShopModel = require('../models/shop.schema');
     const UserModel = require('../models/user.schema');
+
+    /**
+     * Configure JWT
+     */
+    const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
+    const bcrypt = require('bcryptjs');
+
+    const VerifyToken = require('../services/VerifyToken');
 //
 
 /*
@@ -85,12 +94,24 @@ Routes definition
                             createdDate: req.body.createdDate
                         }
 
-                        // MONGODB Create new document in 'user' collection
+                        // MONGODB Create new user in 'user' collection
                         UserModel.create(data)
-                        .then( document => {
+                        .then( user => {
+                            // if user is registered without errors
+                            // create a token
+                            const token = jwt.sign({
+                                    id: user._id
+                                },
+                                process.env.JWT_SECRET, {
+                                    expiresIn: 86400 // expires in 24 hours
+
+                                });
+
                             return res.json({
                                 msg: 'User created!',
-                                data: document,
+                                data: user,
+                                auth: true,
+                                token: token,
                                 err: null
                             });
                         })
@@ -98,55 +119,49 @@ Routes definition
                             return res.json({
                                 msg: 'User not created...',
                                 data: null,
-                                err: mongoError
+                                err: mongoError,
+                                auth: false,
+                                token: null
                             });
                         });
                     }
                     else if(req.params.endpoint === 'login'){
                         // Check if email exist or not
-                        UserModel.findOne({'email': req.body.email}, (mongoError, document) => {
-                            if(!document){
-                                return res.json({msg: 'Login failed, email not valid...'})
+                        UserModel.findOne({'email': req.body.email}, (mongoError, user) => {
+                            if (mongoError) return res.status(500).send('Error on the server.');
+                            if(!user){
+                                return res.json({
+                                    msg: 'Login failed, email not valid...'
+                                })
                             }
-                            // If email is present then it will compare
-                            document.comparePassword(req.body.password, (mongoError, isMatch) => {
-                                if(mongoError) {
-                                    throw mongoError;
-                                }
-                                if(!isMatch) {
-                                    return res.status(400).json({
-                                        msg: 'Wrong password'
-                                    });
-                                }
-                                else {
-                                    // res.status(200).send('Logged successfully !')
-                                    res.status(200).json({
-                                        msg: 'User logged successfully',
-                                        data: document
-                                    })
-                                }
-                            })
+                            else {
+                                // If email is present then it will compare
+                                user.comparePassword(req.body.password, (mongoError, isMatch) => {
+                                    if(mongoError) {
+                                        throw mongoError;
+                                    }
+                                    if(!isMatch) {
+                                        return res.status(400).json({
+                                            msg: 'Wrong password'
+                                        });
+                                    }
+                                    else {
+                                        // if user is found and password is valid
+                                        // create a token
+                                        const token = jwt.sign(
+                                            { id: user._id }, process.env.JWT_SECRET, {
+                                            expiresIn: 86400 // expires in 24 hours
+                                        });
+                                        res.status(200).json({
+                                            msg: 'User logged successfully',
+                                            data: user,
+                                            auth: true,
+                                            token: token
+                                        })
+                                    }
+                                })
+                            }
                         })
-                        // UserModel.findOne({'email': req.body.email}, (err,user) => {
-                        //     if(!user) {
-                        //         return res.json({"Status":"Email Not Valid"})
-                        //     }
-                        //     else {
-                        //         user.comparePassword(req.body.password, (err, isMatch) => {
-                        //             if(!isMatch) {
-                        //                 return res.json({"Status":"Password Failed"});
-                        //             }
-                        //             user.generateToken((err,user)=>{
-                        //                 if(err) return res.status(400).send(err);
-                        //                 // res.cookie('ths_auth',user.token).status(200).json({"Login Success":"True"});
-                        //                 res.status(200).json({
-                        //                     msg: "Login",
-                        //                     token: user.token
-                        //                 });
-                        //             });
-                        //         })
-                        //     }
-                        // })
                     }
                 });
             //
@@ -179,19 +194,21 @@ Routes definition
                             }
                         })
                     }
-                    // USER
-                    else if(req.params.endpoint === 'register'){
-                        // Get all item from table :endpoint
-                        UserModel.find( (mongoError, documents) => {
-                            if( mongoError ){
-                                return res.json( { msg: 'Users not found...', data: null, err: mongoError });
-                            }
-                            else{
-                                return res.json( { msg: 'Users found!', data: documents, err: null } );
-                            }
-                        })
+                    // USER LOGOUT
+                    else if (req.params.endpoint === 'logout'){
+                        res.status(200).send({ auth: false, token: null });
                     }
                 })
+
+                router.get('/me', VerifyToken, function(req, res, next) {
+
+                    UserModel.findById(req.userId, { password: 0 }, function (err, user) {
+                        if (err) return res.status(500).send("There was a problem finding the user.");
+                        if (!user) return res.status(404).send("No user found.");
+                        res.status(200).send(user);
+                    });
+
+                });
             //
 
             /*
@@ -216,16 +233,6 @@ Routes definition
                             }
                             else{
                                 return res.json( { msg: 'Shop found!', data: document, err: null } );
-                            }
-                        });
-                    }
-                    else if(req.params.endpoint === 'register'){
-                        UserModel.findById( req.params.id, (mongoError, document) => {
-                            if( mongoError ){
-                                return res.json( { msg: 'User not found...', data: null, err: mongoError });
-                            }
-                            else{
-                                return res.json( { msg: 'User found!', data: document, err: null } );
                             }
                         });
                     }

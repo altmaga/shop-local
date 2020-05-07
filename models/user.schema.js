@@ -3,7 +3,6 @@ Import
 */
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const jwt = require('jsonwebtoken');
 const bcrypt = require ('bcrypt');
 //
 
@@ -41,25 +40,6 @@ userSchema.pre('save', async function (next) {
     }
     next()
 })
-
-// Generate token
-// userSchema.methods.generateAuthToken = async function() {
-//     // Generate an auth token for the user
-//     const user = this
-//     const token = jwt.sign({_id: user._id}, process.env.JWT_KEY)
-//     user.tokens = user.tokens.concat({token})
-//     await user.save()
-//     return token
-// }
-// userSchema.methods.generateToken = function(cb){
-//     var user = this;
-//     var token = jwt.sign(user._id.toHexString(),process.env.JWT_KEY)
-//     user.token = token;
-//     user.save(function(err,user){
-//         if(err) return cb(err);
-//         cb(null,user);
-//     })
-// };
 
 // Compare password
 userSchema.methods.comparePassword = function(candidatePassword, checkPassword) {

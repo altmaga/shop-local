@@ -1,4 +1,4 @@
-/* 
+/*
 Imports
 */
     // NPM modules
@@ -16,7 +16,7 @@ Imports
 //
 
 
-/* 
+/*
 Declarations
 */
     const server = express();
@@ -24,7 +24,7 @@ Declarations
 //
 
 
-/* 
+/*
 Server class
 */
     class ServerClass{
@@ -36,7 +36,7 @@ Server class
         init(){
             server.engine( 'html', ejs.renderFile );
             server.set( 'view engine', 'html' );
-            
+
             // Static path configuration
             server.set( 'views', __dirname + '/www' );
             server.use( express.static(path.join(__dirname, 'www')) );
@@ -57,7 +57,7 @@ Server class
             this.MYSQL.connectDb()
             .then( connection => {
                 // Set global API router
-                const ApiRouterClass = require('./routers/api.router');
+                const ApiRouterClass = require('./routers/crud.mysql.router');
                 const apiRouter = new ApiRouterClass(connection);
                 server.use('/api', apiRouter.init());
 
@@ -85,7 +85,7 @@ Server class
     }
 //
 
-/* 
+/*
 Start server
 */
     const NODEapi_boilerplate = new ServerClass();
