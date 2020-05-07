@@ -99,13 +99,9 @@ Routes definition
                         .then( user => {
                             // if user is registered without errors
                             // create a token
-                            const token = jwt.sign({
-                                    id: user._id
-                                },
-                                process.env.JWT_SECRET, {
-                                    expiresIn: 86400 // expires in 24 hours
-
-                                });
+                            const token = jwt.sign({id: user._id }, process.env.JWT_SECRET, {
+                                expiresIn: 86400 // expires in 24 hours
+                            });
 
                             return res.json({
                                 msg: 'User created!',
@@ -148,10 +144,10 @@ Routes definition
                                     else {
                                         // if user is found and password is valid
                                         // create a token
-                                        const token = jwt.sign(
-                                            { id: user._id }, process.env.JWT_SECRET, {
+                                        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
                                             expiresIn: 86400 // expires in 24 hours
                                         });
+                                        // res.status(200).send('Logged successfully !')
                                         res.status(200).json({
                                             msg: 'User logged successfully',
                                             data: user,
@@ -169,6 +165,15 @@ Routes definition
             /*
             CRUD: Read all route
             */
+
+                router.get('/me', VerifyToken, function(req, res, next) {
+                    UserModel.findById(req.userId, { password: 0 }, function (err, user) {
+                        if (err) return res.status(500).send("There was a problem finding the user.");
+                        if (!user) return res.status(404).send("No user found.");
+                        res.status(200).json({data: user});
+                    });
+                });
+
                 router.get('/:endpoint', (req, res) => {
                     // PRODUCT
                     if(req.params.endpoint === 'product'){
@@ -198,16 +203,6 @@ Routes definition
                     else if (req.params.endpoint === 'logout'){
                         res.status(200).send({ auth: false, token: null });
                     }
-                })
-
-                router.get('/me', VerifyToken, function(req, res, next) {
-
-                    UserModel.findById(req.userId, { password: 0 }, function (err, user) {
-                        if (err) return res.status(500).send("There was a problem finding the user.");
-                        if (!user) return res.status(404).send("No user found.");
-                        res.status(200).send(user);
-                    });
-
                 });
             //
 
