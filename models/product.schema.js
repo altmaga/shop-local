@@ -20,8 +20,8 @@ Definition
             name: String
         }],
         forward: Boolean,
-        price: String,
-        reduction: String,
+        current_price: String,
+        starting_price: String,
         img: String
     });
 //

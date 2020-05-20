@@ -14,7 +14,7 @@ Etapes à suivre :
 ## MongoDB
 
 # si la base de données n'est pas dans /data/db on doit spécifier le chemin avec --dbpath
-mongod --dbpath db/
+sudo mongod --dbpath /Users/alicemouchard/data
 
 # si la base doit écouter sur un port spécifique
 mongod --port 42

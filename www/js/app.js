@@ -35,11 +35,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const heroItems = document.querySelector('#wrapper-items');
         // Product
         const productDetail = document.querySelector('#product-detail article');
+        // Token
+        const localSt = 'tokenUser';
     //
 
     /*
     Fonctions
     */
+        // Check token user or not
+        const checkUserToken = (step = 'bag') => {
+            new FETCHrequest(`${apiUrl}/me`, 'GET', null, `${localStorage.getItem(localSt)}`)
+            .fetch()
+            .then( fetchData => {
+                if(step === 'bag') {
+                    // Check
+                    console.log(fetchData);
+                    // displayBag(fetchData);
+                }
+                else if (step === 'checkuser') {
+                    console.log(fetchData);
+                    // Display navigation of user logged
+                    displayNav(fetchData.data.username);
+                }
+            })
+            .catch( fetchError => {
+                console.log(fetchError)
+            })
+        };
         // Register - Login
         const getFormSubmit = () => {
             // Get registerForm submit
@@ -63,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .fetch()
                     .then( fetchData => {
                         console.log(fetchData)
+                        // console.log(fetchData.err.errors.email.message)
                     })
                     .catch( fetchError => {
                         console.log(fetchError)
@@ -91,8 +114,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     .fetch()
                     .then( fetchData => {
                         console.log(fetchData);
-                        console.log(fetchData.data);
+
+                        // Reset form
+                        registerForm.reset();
+                        loginForm.reset();
+                        // Ajout du tokenn dans le local storage
+                        localStorage.setItem(localSt, fetchData.token)
+                        // Verif if token is present or not
+                        checkUserToken('checkuser');
+                        // Display navigation of user logged
                         displayNav(fetchData.data.username);
+                        // Display products
+                        getSourceProduct();
                     })
                     .catch( fetchError => {
                         console.log(fetchError)
@@ -102,13 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('form not ok')
                 }
             });
-        }
+        };
 
-        // Shop
+        // Fetch Shop
         const getSourceShop = () => {
-            new FETCHrequest(
-            `${apiUrl}/shop`,
-            'GET')
+            new FETCHrequest(`${apiUrl}/shop`, 'GET')
             .fetch()
             .then( fetchData => {
                 console.log(fetchData);
@@ -119,8 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch( fetchError => {
                 console.log(fetchError)
             })
-        }
+        };
 
+        // Display collection shop
         const displayShopEntity = collection => {
             // console.log(collection);
             shopNameLogo.innerHTML = '';
@@ -168,26 +200,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // User logged display
         const displayNav = pseudo => {
-          mainNav.innerHTML = '';
+            mainNav.innerHTML = '';
 
-          mainNav.innerHTML = `
-              <p id="pseudo">Bonjour ${pseudo}</p>
-              <button id=""><i class="fas fa-user"></i></button>
-              <button id=""><i class="fas fa-shopping-bag"></i></button>
-              <button id=""><i class="fas fa-sign-out-alt"></i></button>
-          `;
+            mainNav.innerHTML = `
+                <p id="pseudo">Bonjour ${pseudo}</p>
+                <button id=""><i class="fas fa-user"></i>Profil</button>
+                <button id=""><i class="fas fa-shopping-bag"></i>Panier (<span class="nb-item">0</span>)</button>
+                <button id="logout"><i class="fas fa-sign-out-alt"></i>Se déconnecter</button>
+            `;
 
-          // Display nav
-          mainNav.classList.remove('hidden');
-          // Display hero when log
-          wrapperHero.classList.remove('hidden');
-          // Display shop
-          shopWrapper.classList.remove('hidden');
-          // Remove login + register
-          areaLog.classList.add('hidden');
-        }
+            // Display nav
+            mainNav.classList.remove('hidden');
+            // Display hero when log
+            wrapperHero.classList.remove('hidden');
+            // Display shop
+            shopWrapper.classList.remove('hidden');
+            // Hide login + register
+            areaLog.classList.add('hidden');
 
-        // User logged display
+            getLogout(document.querySelector('#logout'));
+        };
+
+        // Logout
+        const getLogout = btn => {
+            btn.addEventListener('click', () => {
+                console.log(btn);
+                // Delete LocalStorage
+                localStorage.removeItem(localSt);
+                // Hide nav
+                mainNav.classList.add('hidden');
+                // Hide hero when log
+                wrapperHero.classList.add('hidden');
+                // Hide shop
+                shopWrapper.classList.add('hidden');
+                // Display login + register
+                areaLog.classList.remove('hidden');
+            })
+        };
+
+        // Nav user logged display
         const displayHero = collection => {
             console.log(collection);
             // Display data in hero
@@ -203,10 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="shop-items" class="container"><ul>${itemsShop}</ul></div>
                 `;
             }
-        }
+        };
 
-
-        // Product
+        // Fetch all product
         const getSourceProduct = () => {
             new FETCHrequest(
             `${apiUrl}/product`,
@@ -220,8 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch( fetchError => {
                 console.log(fetchError)
             })
-        }
+        };
 
+        // Display all product
         const displayProductList = collection => {
             console.log(collection);
             productList.innerHTML = '';
@@ -235,31 +286,36 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <figcaption>${collection[i].name}</figcaption>
                             </figure>
                             <div>
-                                <span class="price">${collection[i].price}</span>
-                                <span class="reduc">${collection[i].reduction}</span>
+                                <span class="current-price">${collection[i].current_price}</span>
+                                <span class="starting-price">${collection[i].starting_price}</span>
                             </div>
                             <div>
-                                <button product-id="${collection[i]._id}">Détail</button>
+                                <button class="see-more" product-id="${collection[i]._id}">Détail</button>
+                                <button class="add-bag" product-id="${collection[i]._id}"><i class="fas fa-shopping-bag"></i>Ajouter au panier</button>
                             </div>
                         </div>
                     </article>
                 `;
 
                 // Select article onclick
-                getDetailProductLink(document.querySelectorAll('#product button'));
+                getDetailProductLink(document.querySelectorAll('#product button.see-more'));
+
+                // Select article onclick
+                addProductBag(document.querySelectorAll('#product button.add-bag'), collection[i]);
             };
         };
 
-        const getDetailProductLink = linkCollection => {
-            for(let link of linkCollection) {
+        // Fetch detail product with id
+        const getDetailProductLink = linkDetailProduct => {
+            for(let link of linkDetailProduct) {
                 link.addEventListener('click', () => {
                     new FETCHrequest(
-                    `${apiUrl}/product/${link.getAttribute('product-id')}`,
-                    'GET')
+                    `${apiUrl}/product/${link.getAttribute('product-id')}`, 'GET')
                     .fetch()
                     .then( fetchData => {
                         console.log(fetchData);
                         displayDetailProduct(fetchData.data);
+                        // location = '/pages/produit'
                     })
                     .catch( fetchError => {
                         console.log(fetchError)
@@ -268,6 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        // Display detail of 1 product
         const displayDetailProduct = data => {
             console.log(data);
             // Options
@@ -294,11 +351,71 @@ document.addEventListener('DOMContentLoaded', () => {
             productDetail.parentElement.classList.add('open');
         };
 
+        // Fetch bag product with id
+        const addProductBag = (linkProduct, data) => {
+            for(let link of linkProduct) {
+                link.addEventListener('click', () => {
+                    console.log(link);
+                    console.log(data);
+                    new FETCHrequest(
+                    `${apiUrl}/bag/`, 'POST', {
+                        id_product: data._id,
+                        name: data.name,
+                        description: data.description,
+                        composition: data.composition,
+                        category: data.category,
+                        current_price: data.current_price,
+                        starting_price: data.starting_price,
+                        img: data.img,
+                        token: localStorage.getItem(localSt)
+                    })
+                    .fetch()
+                    .then( fetchData => {
+                        console.log(fetchData);
+                        checkUserToken('bag')
+                    })
+                    .catch( fetchError => {
+                        console.log(fetchError)
+                    })
+                })
+            }
+        }
+
+        const displayBag = data => {
+            // favoriteList.innerHTML = '';
+            // for(let item of data){
+            //     favoriteList.innerHTML += `
+            //         <li>
+            //             <button class="eraseFavorite" movie-id="${item._id}"><i class="fas fa-eraser"></i></button>
+            //             <span  movie-id="${item.id}">${item.title}</span>
+            //         </li>
+            //     `;
+            // };
+            // document.querySelector('#favorite').classList.add('open');
+            // getPopinLink( document.querySelectorAll('#favorite li span') );
+            // deleteFavorite(document.querySelectorAll('.eraseFavorite'))
+        }
+
     /*
     Lancer IHM
     */
+         /*
+      Start interface by checkingg if user token is prersent
+      */
+     if( localStorage.getItem(localSt) !== null ){
+        // console.log(localStorage.getItem(localSt))
+        // Get user informations
+        checkUserToken('checkuser');
+        // Si log display product
+        getSourceProduct();
+      }
+      else{
+        // Si pas de token donc pas de user connecté donc display formulaire de co
+        // Register or login area
+        getFormSubmit();
+      };
 
-    getFormSubmit();
-    getSourceProduct();
-    getSourceShop();
+      // Display dans les 2 cas donc par defaut
+      // getFormSubmit();
+      getSourceShop();
   });

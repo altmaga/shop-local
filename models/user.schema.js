@@ -3,8 +3,8 @@ Import
 */
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const jwt = require('jsonwebtoken');
 const bcrypt = require ('bcrypt');
+const uniqueValidator = require('mongoose-unique-validator');
 //
 
 
@@ -13,12 +13,13 @@ Definition
 */
 const userSchema = new Schema({
   username: {
-    type: String,
+    type: String
   },
   email: {
     type: String,
-    unique: 1,
+    unique: true,
     trim: true,
+    uniqueCaseInsensitive: true,
     required: true
   },
   password: {
@@ -53,6 +54,9 @@ userSchema.methods.comparePassword = function(candidatePassword, checkPassword) 
         }
     })
 }
+
+// Unique email
+userSchema.plugin(uniqueValidator, { message: 'Attention, un compte avec l\'adresse e-mail `{VALUE}` existe déja !' });
 
 /*
 Export

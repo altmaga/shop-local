@@ -10,6 +10,7 @@ Imports
     const ProductModel = require('../models/product.schema');
     const ShopModel = require('../models/shop.schema');
     const UserModel = require('../models/user.schema');
+    const BagModel = require('../models/bag.schema');
 
     /**
      * Configure JWT
@@ -48,8 +49,8 @@ Routes definition
                             composition: req.body.composition,
                             category: req.body.category,
                             forward: req.body.forward,
-                            price: req.body.price,
-                            reduction: req.body.reduction,
+                            current_price: req.body.current_price,
+                            starting_price: req.body.starting_price,
                             img: req.body.img
                         }
 
@@ -84,6 +85,30 @@ Routes definition
                             return res.json( { msg: 'Shop not created...', data: null, err: mongoError } );
                         });
                     }
+                    // BAG
+                    else if (req.params.endpoint === 'bag'){
+                        // Define post data
+                        data = {
+                            id_product: req.body.id_product,
+                            name: req.body.name,
+                            description: req.body.description,
+                            composition: req.body.composition,
+                            category: req.body.category,
+                            current_price: req.body.current_price,
+                            starting_price: req.body.starting_price,
+                            img: req.body.img,
+                            token: req.body.token
+                        }
+
+                        // MONGODB Create new document in 'bags' collection
+                        BagModel.create(data)
+                        .then( document => {
+                            return res.json( { msg: 'Add to bag!', data: document, err: null } );
+                        })
+                        .catch( mongoError => {
+                            return res.json( { msg: 'No adding in bag', data: null, err: mongoError } );
+                        });
+                    }
                     // USER
                     else if(req.params.endpoint === 'register'){
                         // Define post data
@@ -97,27 +122,16 @@ Routes definition
                         // MONGODB Create new user in 'user' collection
                         UserModel.create(data)
                         .then( user => {
-                            // if user is registered without errors
-                            // create a token
-                            const token = jwt.sign({id: user._id }, process.env.JWT_SECRET, {
-                                expiresIn: 86400 // expires in 24 hours
-                            });
-
                             return res.json({
                                 msg: 'User created!',
-                                data: user,
-                                auth: true,
-                                token: token,
-                                err: null
+                                data: user
                             });
                         })
                         .catch( mongoError => {
                             return res.json({
                                 msg: 'User not created...',
                                 data: null,
-                                err: mongoError,
-                                auth: false,
-                                token: null
+                                err: mongoError
                             });
                         });
                     }
@@ -166,11 +180,24 @@ Routes definition
             CRUD: Read all route
             */
 
-                router.get('/me', VerifyToken, function(req, res, next) {
-                    UserModel.findById(req.userId, { password: 0 }, function (err, user) {
-                        if (err) return res.status(500).send("There was a problem finding the user.");
-                        if (!user) return res.status(404).send("No user found.");
-                        res.status(200).json({data: user});
+                router.get('/me', VerifyToken, (req, res) => {
+                    UserModel.findById(req.userId, { password: 0 }, (err, user) => {
+                        if (err) {
+                            return res.status(500).send({
+                                msg: "There was a problem finding the user"
+                            });
+                        }
+                        if (!user) {
+                            return res.status(404).send({
+                                msg: "No user found"
+                            });
+                        }
+                        else {
+                            res.status(200).json({
+                                msg: "User found !",
+                                data: user
+                            });
+                        }
                     });
                 });
 
@@ -199,9 +226,24 @@ Routes definition
                             }
                         })
                     }
+                    // SHOP
+                    else if(req.params.endpoint === 'bag'){
+                        // Get all item from table :endpoint
+                        BagModel.find( (mongoError, documents) => {
+                            if( mongoError ){
+                                return res.json( { msg: 'Bags not found...', data: null, err: mongoError });
+                            }
+                            else{
+                                return res.json( { msg: 'Bags found!', data: documents, err: null } );
+                            }
+                        })
+                    }
                     // USER LOGOUT
                     else if (req.params.endpoint === 'logout'){
-                        res.status(200).send({ auth: false, token: null });
+                        res.status(200).send({
+                            auth: false,
+                            token: null
+                        });
                     }
                 });
             //
@@ -231,6 +273,16 @@ Routes definition
                             }
                         });
                     }
+                    else if(req.params.endpoint === 'bag'){
+                        BagModel.findById( req.params.id, (mongoError, document) => {
+                            if( mongoError ){
+                                return res.json( { msg: 'Bag not found...', data: null, err: mongoError });
+                            }
+                            else{
+                                return res.json( { msg: 'Bag found!', data: document, err: null } );
+                            }
+                        });
+                    }
                 })
             //
 
@@ -252,8 +304,8 @@ Routes definition
                                 document.composition = req.body.composition;
                                 document.category = req.body.category;
                                 document.forward = req.body.forward;
-                                document.price = req.body.price;
-                                document.reduction = req.body.reduction;
+                                document.current_price = req.body.current_price;
+                                document.starting_price = req.body.starting_price;
                                 document.img = req.body.img;
 
                                 // Save document
@@ -294,6 +346,34 @@ Routes definition
                             };
                         });
                     }
+                    // BAG
+                    else if(req.params.endpoint === 'bag'){
+                        BagModel.findById( req.params.id, (mongoError, document) => {
+                            if( mongoError ){
+                                return res.json( { msg: 'Bag not found...', data: null, err: mongoError });
+                            }
+                            else{
+                                // Update documeent data
+                                document.id_product = req.body.id_product,
+                                document.name = req.body.name;
+                                document.description = req.body.description;
+                                document.composition = req.body.composition;
+                                document.category = req.body.category;
+                                document.current_price = req.body.current_price;
+                                document.starting_price = req.body.starting_price;
+                                document.img = req.body.img;
+
+                                // Save document
+                                document.save()
+                                .then( updatedDocument => {
+                                    return res.json( { msg: 'Bag updated!', data: updatedDocument, err: null } );
+                                })
+                                .catch( mongSaveError => {
+                                    return res.json( { msg: 'Bag not updated...', data: null, err: mongSaveError });
+                                });
+                            };
+                        });
+                    }
                 });
             //
 
@@ -320,6 +400,17 @@ Routes definition
                             }
                             else{
                                 return res.json( { msg: 'Shop deleted!', data: mongoSucces, err: null } );
+                            }
+                        });
+                    }
+                    // BAG
+                    else if(req.params.endpoint === 'bag') {
+                        BagModel.findOneAndDelete({ _id: req.params.id }, ( mongoError, mongoSucces ) => {
+                            if( mongoError ){
+                                return res.json( { msg: 'Bag not deleted...', data: null, err: mongoError });
+                            }
+                            else{
+                                return res.json( { msg: 'Bag deleted!', data: mongoSucces, err: null } );
                             }
                         });
                     }

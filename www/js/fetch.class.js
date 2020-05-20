@@ -1,19 +1,21 @@
 class FETCHrequest {
 
-    constructor(url, requestType, data = null) {
+    constructor(url, requestType, data = null, token = null) {
         this.url = url;
         this.requestType = requestType;
         this.data = data;
+        this.token = token;
 
         // Définition du header de la requête
         this.requestHeader = {
             method: requestType,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-access-token': token
             }
         };
 
-        // Ajouter les données dans les requêtes POST et PUT
+        // Ajouter les données dans les requêtes POST et PUT et DELETE
         if( this.requestType === 'POST' || this.requestType === 'PUT' || this.requestType === 'DELETE'){
             this.requestHeader.body = JSON.stringify(data);
         };
