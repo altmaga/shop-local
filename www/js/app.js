@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const apiUrl = '/api/mongo';
         // VAriables
         const productList = document.querySelector('#product-list');
+        const productListMsg = document.querySelector('#catalogue .empty-data');
         // Connnexion
         const areaLog = document.querySelector('#espace-co');
         // Register
@@ -137,12 +138,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
-        // Fetch Shop
+        /* ------------------------------------------------------------------ */
+        /* FETCH SHOP */
+        /* ------------------------------------------------------------------ */
         const getSourceShop = () => {
             new FETCHrequest(`${apiUrl}/shop`, 'GET')
             .fetch()
             .then( fetchData => {
-                console.log(fetchData);
+                console.log('Shop data =>', fetchData);
                 // Display list products
                 displayShopEntity(fetchData.data);
                 displayHero(fetchData.data);
@@ -204,9 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             mainNav.innerHTML = `
                 <p id="pseudo">Bonjour ${pseudo}</p>
-                <button id=""><i class="fas fa-user"></i>Profil</button>
-                <button id=""><i class="fas fa-shopping-bag"></i>Panier (<span class="nb-item">0</span>)</button>
-                <button id="logout"><i class="fas fa-sign-out-alt"></i>Se déconnecter</button>
+                <button id=""><i class="fas fa-user"></i></button>
+                <button id=""><i class="fas fa-shopping-bag"></i>(<span class="nb-item">0</span>)</button>
+                <button id="logout"><i class="fas fa-sign-out-alt"></i></button>
             `;
 
             // Display nav
@@ -256,14 +259,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // Fetch all product
+        /* ------------------------------------------------------------------ */
+        /* FETCH PRODUCT */
+        /* ------------------------------------------------------------------ */
         const getSourceProduct = () => {
             new FETCHrequest(
             `${apiUrl}/product`,
             'GET')
             .fetch()
             .then( fetchData => {
-                console.log(fetchData);
+                console.log('Product data =>', fetchData);
                 // Display list products
                 displayProductList(fetchData.data);
             })
@@ -274,35 +279,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Display all product
         const displayProductList = collection => {
-            console.log(collection);
-            productList.innerHTML = '';
+            if(collection.length > 0) {
+                productList.innerHTML = '';
 
-            for( let i = 0; i < collection.length; i++){
-                productList.innerHTML += `
-                    <article id="product" product-id="${collection[i]._id}">
-                        <div id="preview-product">
-                            <figure>
-                                <img src="${collection[i].img}" alt="${collection[i].name}">
-                                <figcaption>${collection[i].name}</figcaption>
-                            </figure>
-                            <div>
-                                <span class="current-price">${collection[i].current_price}</span>
-                                <span class="starting-price">${collection[i].starting_price}</span>
+                for( let i = 0; i < collection.length; i++){
+                    productList.innerHTML += `
+                        <article id="product" product-id="${collection[i]._id}">
+                            <div id="preview-product">
+                                <figure>
+                                    <img src="${collection[i].img}" alt="${collection[i].name}">
+                                    <figcaption>${collection[i].name}</figcaption>
+                                </figure>
+                                <div>
+                                    <span class="current-price">${collection[i].current_price}</span>
+                                    <span class="starting-price">${collection[i].starting_price}</span>
+                                </div>
+                                <div class="actions-product">
+                                    <button class="see-more" product-id="${collection[i]._id}">Détail</button>
+                                    <button class="add-bag" product-id="${collection[i]._id}"><i class="fas fa-shopping-bag"></i></button>
+                                </div>
                             </div>
-                            <div>
-                                <button class="see-more" product-id="${collection[i]._id}">Détail</button>
-                                <button class="add-bag" product-id="${collection[i]._id}"><i class="fas fa-shopping-bag"></i>Ajouter au panier</button>
-                            </div>
-                        </div>
-                    </article>
+                        </article>
+                    `;
+
+                    // Select article onclick
+                    getDetailProductLink(document.querySelectorAll('#product button.see-more'));
+
+                    // Select article onclick
+                    addProductBag(document.querySelectorAll('#product button.add-bag'), collection[i]);
+                };
+            } else {
+                productListMsg.innerHTML = '';
+                productListMsg.innerHTML = `
+                    <p>Aucun produits disponible :(</p>
                 `;
-
-                // Select article onclick
-                getDetailProductLink(document.querySelectorAll('#product button.see-more'));
-
-                // Select article onclick
-                addProductBag(document.querySelectorAll('#product button.add-bag'), collection[i]);
-            };
+            }
         };
 
         // Fetch detail product with id
@@ -379,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 })
             }
-        }
+        };
 
         const displayBag = data => {
             // favoriteList.innerHTML = '';
@@ -394,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // document.querySelector('#favorite').classList.add('open');
             // getPopinLink( document.querySelectorAll('#favorite li span') );
             // deleteFavorite(document.querySelectorAll('.eraseFavorite'))
-        }
+        };
 
     /*
     Lancer IHM

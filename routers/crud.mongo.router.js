@@ -217,7 +217,7 @@ Routes definition
                     // SHOP
                     else if(req.params.endpoint === 'shop'){
                         // Get all item from table :endpoint
-                        ShopModel.find( (mongoError, documents) => {
+                        ShopModel.find((mongoError, documents) => {
                             if( mongoError ){
                                 return res.json( { msg: 'Shops not found...', data: null, err: mongoError });
                             }

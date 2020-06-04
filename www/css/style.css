@@ -6,7 +6,7 @@ body {
 }
 
 header, footer {
-  padding: 8rem;
+  padding: 3rem 8rem;
 }
 
 p {
@@ -72,6 +72,12 @@ footer #shop-contact #shop-info .rs{
 * Hero
 */
 
+section#wrapper-hero #hero img{
+  width: 1440px;
+  height: 400px;
+  object-fit: cover;
+}
+
 section#wrapper-hero #wrapper-items #shop-items ul{
   display: flex;
   align-items: center;
@@ -132,6 +138,22 @@ section#shop #product-list article#product {
 section#shop #product-list article#product #preview-product{
   max-width: 250px;
   margin: auto;
+}
+
+
+section#shop #product-list article#product #preview-product .actions-product{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+section#shop #product-list article#product #preview-product .actions-product button.see-more{
+  flex: 2;
+  margin-right: 8px;
+}
+
+section#shop #product-list article#product #preview-product .actions-product button.add-bag{
+  flex: 1;
 }
 
 section#shop #product-list article#product figure {
