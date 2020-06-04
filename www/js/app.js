@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainNav = document.querySelector('#main-nav');
         const shopWrapper = document.querySelector('#shop');
         const titleSite = document.querySelector('title');
-        // const faviconSite = document.querySelector('link[rel="icon"]');
         // Hero
         const wrapperHero = document.querySelector('#wrapper-hero');
         const hero = document.querySelector('#hero');
@@ -38,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const productDetail = document.querySelector('#product-detail article');
         // Token
         const localSt = 'tokenUser';
+        const shopId = 'shopId';
     //
 
     /*
@@ -50,11 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .then( fetchData => {
                 if(step === 'bag') {
                     // Check
-                    console.log(fetchData);
                     // displayBag(fetchData);
                 }
                 else if (step === 'checkuser') {
-                    console.log(fetchData);
                     // Display navigation of user logged
                     displayNav(fetchData.data.username);
                 }
@@ -114,8 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                     .fetch()
                     .then( fetchData => {
-                        console.log(fetchData);
-
                         // Reset form
                         registerForm.reset();
                         loginForm.reset();
@@ -125,8 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         checkUserToken('checkuser');
                         // Display navigation of user logged
                         displayNav(fetchData.data.username);
-                        // Display products
-                        getSourceProduct();
+                        // Display products with shopId in localstorage
+                        getSourceShopProduct(localStorage.getItem(shopId));
                     })
                     .catch( fetchError => {
                         console.log(fetchError)
@@ -144,11 +140,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const getSourceShop = () => {
             new FETCHrequest(`${apiUrl}/shop`, 'GET')
             .fetch()
-            .then( fetchData => {
-                console.log('Shop data =>', fetchData);
-                // Display list products
-                displayShopEntity(fetchData.data);
-                displayHero(fetchData.data);
+            .then( fetchDataShop => {
+                // Retrieve data shop => with _id => retrieve product linked to shop
+                displayShopEntity(fetchDataShop.data);
+
+                for(let i = 0; i < fetchDataShop.data.length; i++) {
+                    // Ajout du shopId dans le local storage => accessible partout
+                    localStorage.setItem(shopId, fetchDataShop.data[i]._id)
+                }
             })
             .catch( fetchError => {
                 console.log(fetchError)
@@ -157,12 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Display collection shop
         const displayShopEntity = collection => {
-            // console.log(collection);
+            // HEADER + FOOTER
             shopNameLogo.innerHTML = '';
             shopNameTitle.innerHTML = '';
             shopNameFooter.innerHTML = '';
+            // HERO (display when user logged)
+            hero.innerHTML = '';
+            heroItems.innerHTML = '';
 
-            for( let i = 0; i < collection.length; i++){
+            for( let i = 0; i < collection.length; i++) {
                 titleSite.innerHTML += `${collection[i].name}`;
 
                 shopNameLogo.innerHTML += `
@@ -198,7 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-            };
+
+                hero.innerHTML = `<img src="${collection[i].img}" alt="${collection[i].name}">`;
+                // Array object
+                let itemsShop = '';
+                for( let item of collection[i].items ){ itemsShop += `<li>${item.item}</li>` }
+                heroItems.innerHTML = `
+                    <div id="shop-items" class="container"><ul>${itemsShop}</ul></div>
+                `;
+            }
         };
 
         // User logged display
@@ -241,36 +251,16 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         };
 
-        // Nav user logged display
-        const displayHero = collection => {
-            console.log(collection);
-            // Display data in hero
-            hero.innerHTML = '';
-            heroItems.innerHTML = '';
-
-            for(let i = 0; i < collection.length; i++) {
-                hero.innerHTML = `<img src="${collection[i].img}" alt="${collection[i].name}">`;
-                // Array object
-                let itemsShop = '';
-                for( let item of collection[i].items ){ itemsShop += `<li>${item.item}</li>` }
-                heroItems.innerHTML = `
-                    <div id="shop-items" class="container"><ul>${itemsShop}</ul></div>
-                `;
-            }
-        };
-
         /* ------------------------------------------------------------------ */
-        /* FETCH PRODUCT */
+        /* FETCH SHOP PRODUCT */
         /* ------------------------------------------------------------------ */
-        const getSourceProduct = () => {
+        const getSourceShopProduct = id => {
             new FETCHrequest(
-            `${apiUrl}/product`,
-            'GET')
+            `${apiUrl}/shop/${id}`, 'GET')
             .fetch()
-            .then( fetchData => {
-                console.log('Product data =>', fetchData);
+            .then( fetchDataShopProduct => {
                 // Display list products
-                displayProductList(fetchData.data);
+                displayProductList(fetchDataShopProduct.data.shopProducts);
             })
             .catch( fetchError => {
                 console.log(fetchError)
@@ -410,23 +400,20 @@ document.addEventListener('DOMContentLoaded', () => {
     /*
     Lancer IHM
     */
-         /*
-      Start interface by checkingg if user token is prersent
-      */
+        /*
+            Start interface by checking if user token is present
+        */
      if( localStorage.getItem(localSt) !== null ){
-        // console.log(localStorage.getItem(localSt))
         // Get user informations
         checkUserToken('checkuser');
-        // Si log display product
-        getSourceProduct();
+        // If user log display list product with shopId
+        getSourceShopProduct(localStorage.getItem(shopId));
       }
-      else{
-        // Si pas de token donc pas de user connecté donc display formulaire de co
-        // Register or login area
+      else {
+        // If localSt empty nno user logged display form co - register & login form
         getFormSubmit();
       };
 
-      // Display dans les 2 cas donc par defaut
-      // getFormSubmit();
+      // Display data shop for header & footer
       getSourceShop();
   });

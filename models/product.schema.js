@@ -10,6 +10,8 @@ Import
 Definition
 */
     const productSchema = new Schema({
+        /* Linked shop */
+        shop_id: String,
         name: String,
         description: String,
         composition: [{

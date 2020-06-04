@@ -44,6 +44,7 @@ Routes definition
                     if(req.params.endpoint === 'product'){
                         // Define post data
                         data = {
+                            shop_id: req.body.shop_id,
                             name: req.body.name,
                             description: req.body.description,
                             composition: req.body.composition,
@@ -254,32 +255,40 @@ Routes definition
                 router.get('/:endpoint/:id', async (req, res) => {
                     // Check endpoint
                     if(req.params.endpoint === 'product'){
-                        ProductModel.findById( req.params.id, (mongoError, document) => {
+                        ProductModel.findById( req.params.id, (mongoError, ProductData) => {
                             if( mongoError ){
                                 return res.json( { msg: 'Product not found...', data: null, err: mongoError });
                             }
                             else{
-                                return res.json( { msg: 'Product found!', data: document, err: null } );
+                                return res.json( { msg: 'Product found!', data: ProductData, err: null } );
                             }
                         });
                     }
                     else if(req.params.endpoint === 'shop'){
-                        ShopModel.findById( req.params.id, (mongoError, document) => {
+                        ShopModel.findById( req.params.id, (mongoError, ShopData) => {
                             if( mongoError ){
                                 return res.json( { msg: 'Shop not found...', data: null, err: mongoError });
                             }
-                            else{
-                                return res.json( { msg: 'Shop found!', data: document, err: null } );
+                            else {
+                                // Retourner les produits liées au shop
+                                ProductModel.find({shopId: req.params.shop_id}, (mongoError, shopProduct) => {
+                                    if(mongoError) {
+                                        return res.json( { msg: 'Product of shop not found...', data: null, err: mongoError });
+                                    } else {
+                                        return res.json( { msg: 'Shop & product found!', data: {shop: ShopData, shopProducts: shopProduct}, err: null } );
+                                    }
+                                })
+                                // return res.json( { msg: 'Shop found!', data: ShopData, err: null } );
                             }
                         });
                     }
                     else if(req.params.endpoint === 'bag'){
-                        BagModel.findById( req.params.id, (mongoError, document) => {
+                        BagModel.findById( req.params.id, (mongoError, BagData) => {
                             if( mongoError ){
                                 return res.json( { msg: 'Bag not found...', data: null, err: mongoError });
                             }
                             else{
-                                return res.json( { msg: 'Bag found!', data: document, err: null } );
+                                return res.json( { msg: 'Bag found!', data: BagData, err: null } );
                             }
                         });
                     }
@@ -299,6 +308,7 @@ Routes definition
                             }
                             else{
                                 // Update documeent data
+                                document.shop_id = req.body.shop_id,
                                 document.name = req.body.name;
                                 document.description = req.body.description;
                                 document.composition = req.body.composition;
